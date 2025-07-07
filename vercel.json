@@ -16,8 +16,28 @@
   ],
   "routes": [
     {
-      "src": "/(api/.*)",
-      "dest": "/$1"
+      "src": "/api/hello",
+      "dest": "/api/hello.js"
+    },
+    {
+      "src": "/api/openai",
+      "dest": "/api/openai.js"
+    },
+    {
+      "src": "/api/vision",
+      "dest": "/api/vision.js"
+    },
+    {
+      "src": "/api/test",
+      "dest": "/api/test.js"
+    },
+    {
+      "src": "/api/check-env",
+      "dest": "/api/check-env.js"
+    },
+    {
+      "src": "/api/diagnostic",
+      "dest": "/api/diagnostic.js"
     },
     {
       "src": "/",
