@@ -2516,10 +2516,10 @@
                         throw new Error('剪贴板中没有找到图片。请先复制一张图片（右键图片选择"复制图片"或截图后复制）。');
                     }
 
-                    // 显示图片预览
+                    // 不显示图片预览，直接进行识别
                     const imageUrl = URL.createObjectURL(imageBlob);
-                    preview.src = imageUrl;
-                    preview.style.display = 'block';
+                    // preview.src = imageUrl;
+                    // preview.style.display = 'block';
 
                     // 更新状态
                     status.textContent = '正在识别图片中的文字...';
@@ -2537,9 +2537,8 @@
                         userInput.focus();
                         userInput.setSelectionRange(recognizedText.length, recognizedText.length);
                         
-                        // 显示成功状态
-                        status.textContent = `成功识别文字！已替换输入框内容 (${recognizedText.length}字)`;
-                        status.className = 'helper-status success';
+                        // 识别成功，隐藏状态提示
+                        status.style.display = 'none';
                     } else {
                         throw new Error('未能识别出文字内容');
                     }
@@ -2551,7 +2550,7 @@
                     status.textContent = `识别失败: ${error.message}`;
                     status.className = 'helper-status error';
                     
-                    // 隐藏图片预览
+                    // 确保图片预览隐藏
                     preview.style.display = 'none';
                     
                 } finally {
