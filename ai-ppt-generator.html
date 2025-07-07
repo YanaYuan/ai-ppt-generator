@@ -13,7 +13,35 @@
     <!-- 添加Tesseract.js用于本地OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
     <!-- 本地配置文件 - 仅在本地开发时使用 -->
-    <script src="config.local.js" onerror="console.log('本地配置文件未找到，将使用默认配置或环境变量')"></script>
+    <script>
+        // 动态加载本地配置文件，避免生产环境404错误
+        // 判断是否为本地环境（包括 file:// 协议和本地IP）
+        function isLocalEnvironment() {
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            
+            return protocol === 'file:' ||
+                   hostname === 'localhost' || 
+                   hostname === '127.0.0.1' || 
+                   hostname === '' ||
+                   hostname.startsWith('192.168.') || 
+                   hostname.startsWith('10.') || 
+                   hostname.startsWith('172.') ||
+                   !hostname.includes('.');  // 无域名的情况
+        }
+        
+        if (isLocalEnvironment()) {
+            const script = document.createElement('script');
+            script.src = 'config.local.js';
+            script.onerror = function() {
+                console.log('本地配置文件未找到，将使用默认配置');
+            };
+            document.head.appendChild(script);
+            console.log('本地环境，加载本地配置文件');
+        } else {
+            console.log('生产环境，跳过本地配置文件加载');
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -1166,13 +1194,16 @@
             // 检测是否为本地环境
             isLocalEnvironment() {
                 const hostname = window.location.hostname;
-                return hostname === 'localhost' || 
+                const protocol = window.location.protocol;
+                
+                return protocol === 'file:' ||
+                       hostname === 'localhost' || 
                        hostname === '127.0.0.1' || 
+                       hostname === '' ||
                        hostname.startsWith('192.168.') || 
                        hostname.startsWith('10.') || 
                        hostname.startsWith('172.') ||
-                       hostname === '' ||
-                       window.location.protocol === 'file:';
+                       !hostname.includes('.');  // 无域名的情况
             }
 
             // 直接调用Azure OpenAI（本地环境）
