@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>产品功能对比表格</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="slide-container bg-gradient-to-br from-gray-900 to-blue-900 text-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-tech-pattern opacity-10"></div>
+        
+        <!-- Abstract Tech Elements -->
+        <div class="absolute top-20 right-40 w-64 h-64 rounded-full border border-blue-400 opacity-10"></div>
+        <div class="absolute bottom-20 left-40 w-48 h-48 rounded-full border border-blue-400 opacity-10"></div>
+        
+        <!-- Main Content -->
+        <main class="px-16 pt-12 pb-8">
+            <!-- Title Section -->
+            <div class="w-full mb-6">
+                <h2 class="text-2xl font-semibold text-blue-300 mb-4">
+                    <i class="fas fa-table mr-2"></i><span id="main-title">产品功能对比表格</span>
+                </h2>
+            </div>
+            
+            <!-- Comparison Table -->
+            <div class="bg-blue-900 bg-opacity-40 rounded-lg border border-blue-800 overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-blue-800 bg-opacity-50">
+                            <th class="py-3 px-4 text-left text-cyan-200 font-semibold">产品名称</th>
+                            <th class="py-3 px-4 text-center text-cyan-200 font-semibold">主题生成大纲</th>
+                            <th class="py-3 px-4 text-center text-cyan-200 font-semibold">文档转换</th>
+                            <th class="py-3 px-4 text-center text-cyan-200 font-semibold">AI辅助文案优化</th>
+                            <th class="py-3 px-4 text-left text-cyan-200 font-semibold">特色功能</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">博思AIPPT (PPTGO)</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>一句话生成</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>多格式支持</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">智能提炼文件内容，全流程自动化</td>
+                        </tr>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">Gamma</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">高质量内容生成，减少手动设计工作</td>
+                        </tr>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">Canva PPT</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>品牌风格</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">连贯叙事性PPT生成，品牌风格文案</td>
+                        </tr>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">Tome</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>完整套件</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-minus"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">自动生成标题、大纲、内容、配图</td>
+                        </tr>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">SlidesAI</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>逻辑框架</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">多语言支持，逻辑框架自动构建</td>
+                        </tr>
+                        <tr class="border-t border-blue-800">
+                            <td class="py-3 px-4 font-medium">Microsoft Copilot</td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <span>Office集成</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4">
+                                <div class="capability-cell">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-gray-300">与Office套件深度集成，文档直接转PPT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Legend -->
+            <div id="legend-section" class="mt-4 text-sm">
+                <div class="flex items-center text-left">
+                    <i class="fas fa-star text-yellow-400 mr-2"></i>
+                    <span class="text-gray-300 mr-2">重要信息：</span>
+                    <div id="important-explanation" class="text-gray-400 text-xs italic">
+                        <!-- 动态显示重要信息的详细说明 -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'updateContent' && event.data.component === 'table-component') {
+                updateContent(event.data.content);
+            }
+        });
+
+        function updateContent(content) {
+            // 更新标题
+            const titleElement = document.getElementById('main-title');
+            if (titleElement && content.title) {
+                titleElement.textContent = content.title;
+            }
+
+            // 动态生成完整表格
+            const tableContainer = document.querySelector('.bg-blue-900');
+            if (content.headers && content.rows && tableContainer) {
+                // 找出最重要的数据位置（1个）
+                const importantCells = findMostImportantCells(content);
+                
+                // 创建新的表格HTML
+                let tableHTML = '<table class="w-full text-sm">';
+                
+                // 生成表头
+                tableHTML += '<thead><tr class="bg-blue-800 bg-opacity-50">';
+                content.headers.forEach(header => {
+                    tableHTML += `<th class="py-3 px-4 text-left text-cyan-200 font-semibold">${header}</th>`;
+                });
+                tableHTML += '</tr></thead>';
+                
+                // 生成表格内容
+                tableHTML += '<tbody>';
+                content.rows.forEach((row, rowIndex) => {
+                    tableHTML += '<tr class="border-t border-blue-800">';
+                    row.forEach((cellData, cellIndex) => {
+                        const tdClass = 'py-3 px-4' + (cellIndex === 0 ? ' font-medium' : '');
+                        
+                        // 检查这个单元格是否在重要位置列表中
+                        const importantCell = importantCells.find(pos => pos.row === rowIndex && pos.col === cellIndex);
+                        
+                        if (importantCell) {
+                            tableHTML += `<td class="${tdClass}">
+                                <span class="flex items-center group relative">
+                                    <i class="fas fa-star text-yellow-400 mr-2"></i>
+                                    ${cellData}
+                                    <div class="invisible group-hover:visible absolute left-0 top-8 bg-gradient-to-r from-gray-800 to-gray-700 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap z-10 border border-yellow-400 shadow-lg">
+                                        ${importantCell.reason}
+                                        <div class="absolute -top-1 left-4 w-2 h-2 bg-gray-800 border-l border-t border-yellow-400 transform rotate-45"></div>
+                                    </div>
+                                </span>
+                            </td>`;
+                        } else {
+                            tableHTML += `<td class="${tdClass}">${cellData}</td>`;
+                        }
+                    });
+                    tableHTML += '</tr>';
+                });
+                tableHTML += '</tbody></table>';
+                
+                // 替换整个表格
+                tableContainer.innerHTML = tableHTML;
+                
+                // 更新表格下方的重要信息说明
+                updateImportantInfoExplanation(importantCells, content);
+            }
+        }
+        
+        // 更新表格下方的重要信息说明
+        function updateImportantInfoExplanation(importantCells, content) {
+            const explanationElement = document.getElementById('important-explanation');
+            const legendSection = document.getElementById('legend-section');
+            if (!explanationElement || !legendSection) return;
+            
+            if (importantCells.length > 0) {
+                const cell = importantCells[0];
+                const cellData = content.rows[cell.row][cell.col];
+                const columnHeader = content.headers[cell.col];
+                const rowName = content.rows[cell.row][0];
+                
+                // 生成简洁的说明文本
+                const explanation = `${rowName} 的 "${cellData}" 是 "${columnHeader}" 中的最高值`;
+                
+                explanationElement.textContent = explanation;
+                legendSection.style.display = 'block';
+            } else {
+                // 没有重要信息时，隐藏整个legend区域
+                legendSection.style.display = 'none';
+            }
+        }
+        
+        // 找出表格中最重要的1个数据位置
+        function findMostImportantCells(content) {
+            const maxImportant = 1; // 只标记1个最重要的
+            
+            // 1. 先找出最重要的列
+            const mostImportantColumn = findMostImportantColumn(content);
+            if (mostImportantColumn === -1) return [];
+            
+            // 2. 在该列中找出最大值
+            const maxValueInfo = findMaxValueInColumn(content, mostImportantColumn);
+            if (!maxValueInfo) return [];
+            
+            return [{
+                row: maxValueInfo.rowIndex,
+                col: mostImportantColumn,
+                reason: `该列最高值`
+            }];
+        }
+        
+        // 找出最重要的列（基于列标题关键词）
+        function findMostImportantColumn(content) {
+            // 重要性关键词优先级
+            const importanceKeywords = [
+                { keywords: ['销售额', '销售', '收入', '利润', '营收'], priority: 10 },
+                { keywords: ['增长率', '增长', '涨幅'], priority: 9 },
+                { keywords: ['人口', '用户数', '客户数'], priority: 8 },
+                { keywords: ['价格', '费用', '成本'], priority: 7 },
+                { keywords: ['效率', '成功率', '达成率'], priority: 6 },
+                { keywords: ['Q4', '第四季度', '年度'], priority: 5 }, // 最新数据通常更重要
+                { keywords: ['总计', '合计', '总额'], priority: 4 }
+            ];
+            
+            let bestColumn = -1;
+            let bestScore = 0;
+            
+            content.headers.forEach((header, index) => {
+                if (index === 0) return; // 跳过第一列（名称列）
+                
+                const headerLower = header.toLowerCase();
+                let score = 0;
+                
+                // 检查关键词匹配
+                for (const keywordGroup of importanceKeywords) {
+                    for (const keyword of keywordGroup.keywords) {
+                        if (headerLower.includes(keyword)) {
+                            score = Math.max(score, keywordGroup.priority);
+                            break;
+                        }
+                    }
+                }
+                
+                // 如果没有关键词匹配，检查是否包含数值数据
+                if (score === 0 && hasNumericData(content, index)) {
+                    score = 1;
+                }
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestColumn = index;
+                }
+            });
+            
+            return bestColumn;
+        }
+        
+        // 检查某列是否包含数值数据
+        function hasNumericData(content, columnIndex) {
+            return content.rows.some(row => {
+                const cellData = String(row[columnIndex]);
+                const numericValue = parseFloat(cellData.replace(/[^\d.-]/g, ''));
+                return !isNaN(numericValue);
+            });
+        }
+        
+        // 在指定列中找出最大值
+        function findMaxValueInColumn(content, columnIndex) {
+            let maxValue = -Infinity;
+            let maxRowIndex = -1;
+            
+            content.rows.forEach((row, rowIndex) => {
+                const cellData = String(row[columnIndex]);
+                const numericValue = parseFloat(cellData.replace(/[^\d.-]/g, ''));
+                
+                if (!isNaN(numericValue) && numericValue > maxValue) {
+                    maxValue = numericValue;
+                    maxRowIndex = rowIndex;
+                }
+            });
+            
+            return maxRowIndex >= 0 ? { rowIndex: maxRowIndex, value: maxValue } : null;
+        }
+        
+        // 计算单元格数据的重要性得分
+        function calculateImportanceScore(cellData, columnIndex, columnHeader, content) {
+            const data = String(cellData).toLowerCase();
+            const header = String(columnHeader).toLowerCase();
+            let score = 0;
+            let reasons = [];
+            
+            // 数值类数据基础分
+            if (/\d/.test(data)) {
+                score += 1;
+            }
+            
+            // 关键指标加分
+            if (header.includes('人口') || header.includes('销售') || header.includes('增长') || 
+                header.includes('业绩') || header.includes('收入') || header.includes('利润')) {
+                score += 3;
+                reasons.push('核心业务指标');
+            }
+            
+            // 百分比、货币、特殊单位加分
+            if (data.includes('%')) {
+                score += 2;
+                reasons.push('百分比数据');
+            }
+            if (data.includes('万') || data.includes('亿') || data.includes('$') || data.includes('￥')) {
+                score += 2;
+                reasons.push('重要金额');
+            }
+            if (data.includes('+') || data.includes('-')) {
+                score += 2;
+                reasons.push('变化趋势');
+            }
+            
+            // 极值数据加分（最大、最小值）
+            const numericValue = parseFloat(data.replace(/[^\d.-]/g, ''));
+            if (!isNaN(numericValue)) {
+                const columnValues = content.rows.map(row => {
+                    const val = parseFloat(String(row[columnIndex]).replace(/[^\d.-]/g, ''));
+                    return isNaN(val) ? 0 : val;
+                });
+                const maxVal = Math.max(...columnValues);
+                const minVal = Math.min(...columnValues);
+                
+                if (numericValue === maxVal && maxVal > minVal) {
+                    score += 4;
+                    reasons.push('该列最高值');
+                } else if (numericValue === minVal && maxVal > minVal) {
+                    score += 4;
+                    reasons.push('该列最低值');
+                }
+            }
+            
+            // 特殊标识词加分
+            if (data.includes('第一') || data.includes('最')) {
+                score += 3;
+                reasons.push('排名标识');
+            }
+            if (data.includes('领先') || data.includes('优势') || data.includes('突出')) {
+                score += 3;
+                reasons.push('竞争优势');
+            }
+            if (data.includes('特色') || data.includes('核心') || data.includes('重点') || data.includes('关键')) {
+                score += 3;
+                reasons.push('核心特征');
+            }
+            
+            // 年份等时间信息
+            if (/20\d{2}/.test(data)) {
+                score += 1;
+                reasons.push('时间信息');
+            }
+            
+            // 优势功能特征识别
+            if (data.includes('一句话') || data.includes('多格式') || data.includes('完整套件') || 
+                data.includes('office集成') || data.includes('逻辑框架') || data.includes('品牌风格')) {
+                score += 3;
+                reasons.push('独特功能');
+            }
+            
+            // 高数值标识
+            if (numericValue > 90 && data.includes('%')) {
+                score += 2;
+                reasons.push('高达成率');
+            }
+            
+            // 构建解释文本
+            let reason = '';
+            if (reasons.length > 0 && score >= 3) {
+                const reasonText = reasons.join('、');
+                if (score >= 7) {
+                    reason = `🔥 关键数据：${reasonText}`;
+                } else if (score >= 5) {
+                    reason = `⭐ 重要信息：${reasonText}`;
+                } else {
+                    reason = `📌 值得关注：${reasonText}`;
+                }
+            }
+            
+            return { score, reason };
+        }
+    </script>
+</body>
+</html>
