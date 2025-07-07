@@ -1166,16 +1166,67 @@
             isMockData(content) {
                 if (!content || typeof content !== 'object') return false;
                 
-                // 通过检查一些模拟数据的特征来判断
+                // 检查是否包含明确的模拟数据标识
                 const mockIndicators = [
-                    '演示数据', '示例内容', '请输入', 'Mock', 'Demo',
-                    '核心价值观', '关键流程步骤', '功能对比分析', '销售业绩统计'
+                    '演示数据', '示例内容', 'Mock', 'Demo',
+                    '请输入', '模拟', '测试数据'
                 ];
                 
                 const contentStr = JSON.stringify(content).toLowerCase();
-                return mockIndicators.some(indicator => 
+                
+                // 只有当内容包含明确的模拟数据标识时才认为是模拟数据
+                const hasMockIndicator = mockIndicators.some(indicator => 
                     contentStr.includes(indicator.toLowerCase())
                 );
+                
+                // 额外检查：如果内容完全匹配预设的模拟数据模板，也认为是模拟数据
+                const isTemplateMatch = this.isTemplateMockData(content);
+                
+                return hasMockIndicator || isTemplateMatch;
+            }
+
+            // 检查是否是预设的模拟数据模板
+            isTemplateMockData(content) {
+                if (!content || typeof content !== 'object') return false;
+                
+                // 检查是否完全匹配模拟数据模板的特定组合
+                const templateSignatures = [
+                    // 核心价值组件的模板特征
+                    {
+                        title: '核心价值观',
+                        values: [
+                            { title: '创新驱动', description: '持续推动技术创新，引领行业发展方向' }
+                        ]
+                    },
+                    // 简约列表组件的模板特征
+                    {
+                        title: '关键流程步骤',
+                        steps: [
+                            { title: '第一步', description: '分析当前情况，明确目标和需求' }
+                        ]
+                    }
+                ];
+                
+                // 检查是否匹配任何模板特征
+                return templateSignatures.some(template => {
+                    if (content.title === template.title) {
+                        if (template.values && content.values) {
+                            return content.values.some(value => 
+                                template.values.some(templateValue => 
+                                    value.title === templateValue.title
+                                )
+                            );
+                        }
+                        if (template.steps && content.steps) {
+                            return content.steps.some(step => 
+                                template.steps.some(templateStep => 
+                                    step.title === templateStep.title
+                                )
+                            );
+                        }
+                    }
+                    return false;
+                });
             }
 
             async callAzureOpenAI(userInput, componentType) {
