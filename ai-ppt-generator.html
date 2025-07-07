@@ -1934,7 +1934,7 @@
                         };
                         result.rightSide = {
                             "title": "旅游劣势",
-                            "icon": "thumbs-down",
+ "icon": "thumbs-down",
                             "items": ["高额费用经济负担", "时间安排受到限制", "旅途疲劳身心消耗", "安全风险不确定性"]
                         };
                     } else {
@@ -2453,7 +2453,7 @@
                     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>正在获取图片...</span>';
                     
                     // 显示状态
-                    status.textContent = '正在从剪贴板读取图片...';
+                    status.textContent = '正在检查剪贴板权限...';
                     status.className = 'helper-status loading';
 
                     // 检查浏览器是否支持剪贴板API
@@ -2461,8 +2461,44 @@
                         throw new Error('浏览器不支持剪贴板API，请使用Chrome或Edge浏览器');
                     }
 
-                    // 从剪贴板读取内容
-                    const clipboardItems = await navigator.clipboard.read();
+                    // 检查剪贴板权限状态
+                    let permissionStatus = null;
+                    try {
+                        if (navigator.permissions && navigator.permissions.query) {
+                            permissionStatus = await navigator.permissions.query({ name: 'clipboard-read' });
+                            console.log('剪贴板权限状态:', permissionStatus.state);
+                        }
+                    } catch (permError) {
+                        console.log('无法检查权限状态:', permError);
+                    }
+
+                    // 处理权限被拒绝的情况
+                    if (permissionStatus && permissionStatus.state === 'denied') {
+                        throw new Error('剪贴板权限被拒绝。请在浏览器地址栏左侧点击锁图标，允许"剪贴板"权限，然后刷新页面重试。');
+                    }
+
+                    // 更新状态
+                    status.textContent = '正在从剪贴板读取图片...';
+
+                    // 从剪贴板读取内容（这里会触发权限申请）
+                    let clipboardItems;
+                    try {
+                        clipboardItems = await navigator.clipboard.read();
+                    } catch (clipError) {
+                        console.error('剪贴板读取失败:', clipError);
+                        
+                        // 判断是否是权限被拒绝
+                        if (clipError.name === 'NotAllowedError' || clipError.message.includes('denied') || clipError.message.includes('permission')) {
+                            // 显示权限设置指南
+                            this.showPermissionGuide();
+                            throw new Error('剪贴板权限被拒绝。请按照弹出的指南设置权限。');
+                        } else if (clipError.name === 'SecurityError') {
+                            throw new Error('由于安全策略限制，无法访问剪贴板。请确保页面通过HTTPS访问。');
+                        } else {
+                            throw new Error(`剪贴板访问失败: ${clipError.message}`);
+                        }
+                    }
+
                     let imageBlob = null;
 
                     // 查找图片类型的剪贴板内容
@@ -2477,7 +2513,7 @@
                     }
 
                     if (!imageBlob) {
-                        throw new Error('剪贴板中没有找到图片，请先复制一张图片');
+                        throw new Error('剪贴板中没有找到图片。请先复制一张图片（右键图片选择"复制图片"或截图后复制）。');
                     }
 
                     // 显示图片预览
@@ -2520,11 +2556,69 @@
                     button.disabled = false;
                     button.innerHTML = '<i class="fas fa-image"></i><span>从剪贴板图片识别文字</span>';
                     
-                    // 3秒后隐藏状态
+                    // 5秒后隐藏状态（权限错误信息显示更久一些）
                     setTimeout(() => {
                         status.style.display = 'none';
-                    }, 3000);
+                    }, 5000);
                 }
+            }
+                        
+            // 显示权限设置指南
+            showPermissionGuide() {
+                const guideHTML = `
+                    <div id="permission-guide" style="
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: #1e293b;
+                        color: white;
+                        padding: 30px;
+                        border-radius: 12px;
+                        border: 1px solid #334155;
+                        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                        z-index: 10000;
+                        max-width: 500px;
+                        width: 90%;
+                    ">
+                        <h3 style="margin: 0 0 20px 0; color: #f59e0b;">🔒 剪贴板权限设置</h3>
+                        <div style="margin-bottom: 20px; line-height: 1.6;">
+                            <p><strong>Chrome/Edge 浏览器:</strong></p>
+                            <ol style="margin: 10px 0; padding-left: 20px;">
+                                <li>点击地址栏左侧的 🔒 锁图标</li>
+                                <li>找到"剪贴板"权限</li>
+                                <li>选择"允许"</li>
+                                <li>刷新页面</li>
+                            </ol>
+                            
+                            <p style="margin-top: 15px;"><strong>如果没有看到权限选项:</strong></p>
+                            <ul style="margin: 10px 0; padding-left: 20px;">
+                                <li>尝试重新点击"识别文字"按钮</li>
+                                <li>在权限弹窗中选择"允许"</li>
+                            </ul>
+                        </div>
+                        <button onclick="document.getElementById('permission-guide').remove()" style="
+                            background: #3b82f6;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            width: 100%;
+                        ">我知道了</button>
+                    </div>
+                    <div onclick="document.getElementById('permission-guide').remove()" style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 9999;
+                    "></div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', guideHTML);
             }
 
             // 使用Azure OpenAI Vision API识别图片文字
