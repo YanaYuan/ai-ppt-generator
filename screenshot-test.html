@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>截图功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .test-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-btn:hover {
+            background: #0056b3;
+        }
+        .test-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            max-width: 100%;
+        }
+        .browser-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .feature-check {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .check-icon {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .supported { color: green; }
+        .not-supported { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 AI PPT组件生成器 - 截图功能测试</h1>
+        
+        <div class="browser-info">
+            <h3>🔍 浏览器兼容性检查</h3>
+            <div id="compatibility-check"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 功能测试</h3>
+            <button class="test-btn" id="test-basic" onclick="testBasicCapture()">基础屏幕捕获测试</button>
+            <button class="test-btn" id="test-area" onclick="testAreaSelection()">区域选择测试</button>
+            <button class="test-btn" id="clear-results" onclick="clearResults()">清除结果</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // 检查浏览器兼容性
+        function checkCompatibility() {
+            const checks = [
+                {
+                    name: 'Screen Capture API',
+                    supported: !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia),
+                    note: '截图功能的核心API'
+                },
+                {
+                    name: 'Canvas API',
+                    supported: !!document.createElement('canvas').getContext,
+                    note: '图像处理和裁剪'
+                },
+                {
+                    name: 'Window.open',
+                    supported: !!window.open,
+                    note: '弹窗区域选择界面'
+                },
+                {
+                    name: 'Fetch API',
+                    supported: !!window.fetch,
+                    note: 'OCR API调用'
+                },
+                {
+                    name: 'HTTPS环境',
+                    supported: location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1',
+                    note: 'Screen Capture API需要安全环境'
+                }
+            ];
+
+            const container = document.getElementById('compatibility-check');
+            container.innerHTML = checks.map(check => `
+                <div class="feature-check">
+                    <span class="check-icon ${check.supported ? 'supported' : 'not-supported'}">
+                        ${check.supported ? '✅' : '❌'}
+                    </span>
+                    <span>${check.name}: ${check.supported ? '支持' : '不支持'}</span>
+                    <small style="margin-left: 10px; color: #666;">(${check.note})</small>
+                </div>
+            `).join('');
+
+            // 如果是file://协议，显示警告
+            if (location.protocol === 'file:') {
+                addResult('⚠️ 当前使用file://协议，Screen Capture API可能无法正常工作。建议使用HTTPS或本地服务器测试。', 'warning');
+            }
+        }
+
+        // 基础屏幕捕获测试
+        async function testBasicCapture() {
+            const btn = document.getElementById('test-basic');
+            btn.disabled = true;
+            btn.textContent = '测试中...';
+
+            try {
+                addResult('🚀 开始基础屏幕捕获测试...', 'info');
+
+                // 检查API支持
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                    throw new Error('浏览器不支持Screen Capture API');
+                }
+
+                addResult('✅ Screen Capture API支持检查通过', 'success');
+
+                // 请求屏幕共享
+                addResult('📋 请在弹出的权限对话框中选择要共享的屏幕...', 'info');
+                
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    video: {
+                        mediaSource: 'screen',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                });
+
+                addResult('✅ 屏幕共享权限获取成功', 'success');
+
+                // 创建video元素
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.autoplay = true;
+                video.muted = true;
+                video.style.width = '300px';
+                video.style.height = '200px';
+
+                // 等待视频加载
+                await new Promise(resolve => {
+                    video.addEventListener('loadedmetadata', resolve);
+                });
+
+                addResult('✅ 视频流创建成功', 'success');
+
+                // 等待一帧确保有内容
+                await new Promise(resolve => {
+                    const checkTime = () => {
+                        if (video.currentTime > 0) {
+                            resolve();
+                        } else {
+                            requestAnimationFrame(checkTime);
+                        }
+                    };
+                    checkTime();
+                });
+
+                // 创建canvas截图
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.style.maxWidth = '400px';
+                canvas.style.border = '1px solid #ddd';
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+
+                addResult('✅ 屏幕截图成功', 'success');
+
+                // 显示截图结果
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `
+                    <strong>📸 截图结果：</strong><br>
+                    分辨率: ${canvas.width} × ${canvas.height}<br>
+                    <br>
+                `;
+                resultDiv.appendChild(canvas);
+                document.getElementById('results').appendChild(resultDiv);
+
+                // 停止屏幕共享
+                stream.getTracks().forEach(track => track.stop());
+                addResult('✅ 资源清理完成', 'success');
+
+            } catch (error) {
+                console.error('基础截图测试失败:', error);
+                
+                let errorMessage = '基础截图测试失败: ';
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += '用户拒绝了屏幕共享权限';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage += '浏览器不支持Screen Capture API';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                addResult('❌ ' + errorMessage, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '基础屏幕捕获测试';
+            }
+        }
+
+        // 区域选择测试
+        async function testAreaSelection() {
+            const btn = document.getElementById('test-area');
+            btn.disabled = true;
+            btn.textContent = '测试中...';
+
+            try {
+                addResult('🚀 开始区域选择测试...', 'info');
+
+                // 检查弹窗功能
+                const testWindow = window.open('', '_blank', 'width=400,height=300');
+                if (!testWindow) {
+                    throw new Error('无法打开弹窗，请检查浏览器弹窗设置');
+                }
+
+                addResult('✅ 弹窗创建成功', 'success');
+
+                // 设置测试弹窗内容
+                testWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: sans-serif;
+                                padding: 20px;
+                                background: #f0f8ff;
+                                text-align: center;
+                            }
+                            .test-content {
+                                background: white;
+                                padding: 20px;
+                                border-radius: 8px;
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="test-content">
+                            <h2>🎯 区域选择测试窗口</h2>
+                            <p>这是一个测试窗口，用于验证跨窗口截图功能。</p>
+                            <p>请在主窗口中使用截图功能截取此窗口。</p>
+                            <button onclick="window.close()">关闭窗口</button>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                // 3秒后自动关闭测试窗口
+                setTimeout(() => {
+                    if (!testWindow.closed) {
+                        testWindow.close();
+                    }
+                }, 5000);
+
+                addResult('✅ 区域选择测试窗口已创建，请使用主应用的截图功能截取该窗口', 'success');
+                addResult('ℹ️ 测试窗口将在5秒后自动关闭', 'info');
+
+            } catch (error) {
+                console.error('区域选择测试失败:', error);
+                addResult('❌ 区域选择测试失败: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '区域选择测试';
+            }
+        }
+
+        // 添加结果到页面
+        function addResult(message, type = 'info') {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            document.getElementById('results').appendChild(resultDiv);
+            
+            // 滚动到最新结果
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 清除结果
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // 页面加载时检查兼容性
+        window.addEventListener('load', checkCompatibility);
+    </script>
+</body>
+</html>

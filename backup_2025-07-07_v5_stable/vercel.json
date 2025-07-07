@@ -1,0 +1,55 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/vercel-diagnostic.html",
+      "dest": "/vercel-diagnostic.html"
+    },
+    {
+      "src": "/test-api.html",
+      "dest": "/test-api.html"
+    },
+    {
+      "src": "/api-test-simple.html",
+      "dest": "/api-test-simple.html"
+    },
+    {
+      "src": "/debug-api.html",
+      "dest": "/debug-api.html"
+    },
+    {
+      "src": "/basic-test.html",
+      "dest": "/basic-test.html"
+    },
+    {
+      "src": "/api-config-tester.html",
+      "dest": "/api-config-tester.html"
+    },
+    {
+      "src": "/",
+      "dest": "/ai-ppt-generator.html"
+    },
+    {
+      "src": "/(.*\\.html)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/ai-ppt-generator.html"
+    }
+  ]
+}

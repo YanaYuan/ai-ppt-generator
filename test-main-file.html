@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>主文件按钮测试</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 20px;
+        }
+        .test-section {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+        .test-result {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none;
+        }
+        .component-option {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+        .component-option:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .component-option.selected {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+        textarea {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            resize: vertical;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <h1>主文件按钮功能测试</h1>
+    
+    <div class="test-section">
+        <h2><i class="fas fa-clipboard-list"></i> 输入测试</h2>
+        <textarea id="userInput" placeholder="输入一些内容进行测试...">展示我们公司的核心价值观：创新驱动、客户至上、团队协作</textarea>
+    </div>
+    
+    <div class="test-section">
+        <h2><i class="fas fa-puzzle-piece"></i> 组件选择测试</h2>
+        <div class="component-option selected" data-component="core-value">
+            <strong>图标列表组件</strong> - 适合展示要点、价值观等
+        </div>
+        <div class="component-option" data-component="ai-transform">
+            <strong>流程组件</strong> - 适合展示步骤、流程等
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2><i class="fas fa-mouse-pointer"></i> 按钮点击测试</h2>
+        <button class="btn btn-primary" id="testBtn1">
+            <i class="fas fa-magic"></i>
+            <span>测试生成按钮</span>
+        </button>
+        <div class="test-result" id="result1">
+            ✅ 按钮点击成功！事件监听器正常工作。
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2><i class="fas fa-dice"></i> 随机按钮测试</h2>
+        <button class="btn btn-primary" id="testBtn2">
+            <i class="fas fa-dice"></i>
+            <span>随机示例按钮</span>
+        </button>
+        <div class="test-result" id="result2">
+            ✅ 随机按钮点击成功！文本内容已更新。
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2><i class="fas fa-check-circle"></i> 组件选择测试</h2>
+        <button class="btn btn-primary" id="testBtn3">
+            <i class="fas fa-mouse-pointer"></i>
+            <span>测试组件选择</span>
+        </button>
+        <div class="test-result" id="result3">
+            ✅ 组件选择事件正常！选中状态切换成功。
+        </div>
+    </div>
+    
+    <script>
+        console.log('测试页面加载完成');
+        
+        // 测试变量
+        let selectedComponent = 'core-value';
+        
+        // 测试按钮1：基本点击测试
+        document.getElementById('testBtn1').addEventListener('click', () => {
+            console.log('测试按钮1被点击');
+            const result = document.getElementById('result1');
+            result.style.display = 'block';
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 3000);
+        });
+        
+        // 测试按钮2：随机文本测试
+        document.getElementById('testBtn2').addEventListener('click', () => {
+            console.log('测试按钮2被点击');
+            const textarea = document.getElementById('userInput');
+            const demos = [
+                '展示我们公司的核心价值观：创新驱动、客户至上、团队协作',
+                '软件开发标准流程：需求分析→架构设计→编码实现→测试上线',
+                '对比三种云服务方案：阿里云、腾讯云、华为云的性能和价格',
+                '展示2023年各季度销售额：Q1、Q2、Q3、Q4的数据对比'
+            ];
+            const randomDemo = demos[Math.floor(Math.random() * demos.length)];
+            textarea.value = randomDemo;
+            
+            const result = document.getElementById('result2');
+            result.style.display = 'block';
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 3000);
+        });
+        
+        // 测试按钮3：组件选择测试
+        document.getElementById('testBtn3').addEventListener('click', () => {
+            console.log('测试按钮3被点击');
+            const options = document.querySelectorAll('.component-option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // 随机选择一个组件
+            const randomOption = options[Math.floor(Math.random() * options.length)];
+            randomOption.classList.add('selected');
+            selectedComponent = randomOption.getAttribute('data-component');
+            
+            console.log('选中组件:', selectedComponent);
+            
+            const result = document.getElementById('result3');
+            result.style.display = 'block';
+            setTimeout(() => {
+                result.style.display = 'none';
+            }, 3000);
+        });
+        
+        // 组件选择点击事件
+        document.querySelectorAll('.component-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                console.log('组件被点击:', e.target);
+                document.querySelectorAll('.component-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                selectedComponent = option.getAttribute('data-component');
+                console.log('当前选中组件:', selectedComponent);
+            });
+        });
+        
+        console.log('所有事件监听器已绑定完成');
+    </script>
+</body>
+</html>

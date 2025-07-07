@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>基础连接测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔧 基础连接诊断</h1>
+    
+    <div class="info" style="margin-bottom: 20px;">
+        <strong>诊断状态：</strong><br>
+        • 页面加载：✅ 成功<br>
+        • 当前URL：<span id="currentUrl"></span><br>
+        • 时间：<span id="currentTime"></span>
+    </div>
+    
+    <button class="btn" onclick="testBasicAPI()">测试基础API (/api/openai)</button>
+    <button class="btn" onclick="testWithOptions()">测试OPTIONS请求</button>
+    <button class="btn" onclick="goToMain()">返回主应用</button>
+    
+    <div id="result" class="result info">点击按钮开始测试...</div>
+
+    <script>
+        // 显示页面信息
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('currentTime').textContent = new Date().toLocaleString();
+
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.textContent = message;
+            result.className = `result ${type}`;
+        }
+
+        async function testBasicAPI() {
+            showResult('正在测试 /api/openai (仅检查端点是否存在)...', 'info');
+            
+            try {
+                // 先测试OPTIONS请求
+                const optionsResponse = await fetch('/api/openai', {
+                    method: 'OPTIONS'
+                });
+                
+                let message = `OPTIONS测试结果:\n`;
+                message += `状态码: ${optionsResponse.status}\n`;
+                message += `状态文本: ${optionsResponse.statusText}\n`;
+                
+                if (optionsResponse.status === 200) {
+                    message += `✅ API端点存在且响应正常\n\n`;
+                    
+                    // 如果OPTIONS成功，尝试POST请求
+                    try {
+                        const postResponse = await fetch('/api/openai', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                messages: [{ role: "user", content: "test" }],
+                                max_tokens: 5
+                            })
+                        });
+                        
+                        const responseText = await postResponse.text();
+                        message += `POST测试结果:\n`;
+                        message += `状态码: ${postResponse.status}\n`;
+                        message += `响应长度: ${responseText.length} 字符\n`;
+                        message += `响应内容预览: ${responseText.substring(0, 200)}...\n`;
+                        
+                        showResult(message, postResponse.ok ? 'success' : 'error');
+                    } catch (postError) {
+                        message += `POST请求失败: ${postError.message}`;
+                        showResult(message, 'error');
+                    }
+                } else {
+                    message += `❌ API端点不存在或配置错误`;
+                    showResult(message, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ 网络错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testWithOptions() {
+            showResult('测试CORS预检请求...', 'info');
+            
+            try {
+                const response = await fetch('/api/openai', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST',
+                        'Access-Control-Request-Headers': 'Content-Type'
+                    }
+                });
+                
+                let message = `CORS预检测试:\n`;
+                message += `状态码: ${response.status}\n`;
+                message += `CORS头信息:\n`;
+                
+                for (let [key, value] of response.headers.entries()) {
+                    if (key.toLowerCase().includes('access-control')) {
+                        message += `  ${key}: ${value}\n`;
+                    }
+                }
+                
+                showResult(message, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                showResult(`❌ CORS测试失败: ${error.message}`, 'error');
+            }
+        }
+
+        function goToMain() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

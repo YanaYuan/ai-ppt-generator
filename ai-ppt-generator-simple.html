@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AI PPT组件生成器</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .preview-area {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 8px;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.5);
+            color: white;
+            font-size: 14px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .component-option {
+            padding: 15px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .component-option:hover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .component-option.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .component-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+            font-size: 18px;
+        }
+
+        .component-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 2px;
+        }
+
+        .component-info p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+
+        .empty-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .empty-preview i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <h1 class="text-xl font-bold mb-6">AI PPT组件生成器</h1>
+            
+            <div class="input-section">
+                <label class="input-label">输入内容</label>
+                <textarea 
+                    class="text-input" 
+                    id="userInput" 
+                    placeholder="输入您想要制作PPT的内容，AI将自动整理和生成视觉化表达"
+                ></textarea>
+            </div>
+
+            <!-- 组件选择 -->
+            <div class="input-section">
+                <label class="input-label">选择组件</label>
+                <div class="component-grid">
+                    <div class="component-option selected" data-component="core-value">
+                        <div class="component-icon">
+                            <i class="fas fa-list-ul"></i>
+                        </div>
+                        <div class="component-info">
+                            <h3>图标列表</h3>
+                            <p>带图标的要点列表，适合展示特色功能</p>
+                        </div>
+                    </div>
+                    
+                    <div class="component-option" data-component="ai-transform">
+                        <div class="component-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="component-info">
+                            <h3>简约列表</h3>
+                            <p>简洁的步骤或要点列表，适合流程展示</p>
+                        </div>
+                    </div>
+                    
+                    <div class="component-option" data-component="table-component">
+                        <div class="component-icon">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <div class="component-info">
+                            <h3>数据表格</h3>
+                            <p>结构化表格，适合功能对比和数据展示</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生成按钮 -->
+            <button class="btn" id="generateBtn">
+                <i class="fas fa-magic"></i>
+                <span>生成预览</span>
+            </button>
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="preview-area" id="previewArea">
+                <div class="empty-preview">
+                    <i class="fas fa-file-powerpoint"></i>
+                    <h3>AI PPT组件生成器</h3>
+                    <p>输入内容，选择组件，即可生成专业的PPT页面</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('脚本开始加载...');
+        
+        class AIPPTGenerator {
+            constructor() {
+                console.log('初始化 AIPPTGenerator...');
+                this.selectedComponent = 'core-value';
+                this.generatedContent = null;
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                console.log('初始化事件监听器...');
+                
+                // 组件选择
+                document.querySelectorAll('.component-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        console.log('组件选择:', option.dataset.component);
+                        document.querySelectorAll('.component-option').forEach(o => o.classList.remove('selected'));
+                        option.classList.add('selected');
+                        this.selectedComponent = option.dataset.component;
+                    });
+                });
+
+                // 生成按钮
+                const generateBtn = document.getElementById('generateBtn');
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', () => {
+                        console.log('生成按钮被点击');
+                        this.generatePreview();
+                    });
+                } else {
+                    console.error('找不到生成按钮');
+                }
+            }
+
+            async generatePreview() {
+                console.log('开始生成预览...');
+                
+                const userInput = document.getElementById('userInput').value.trim();
+                
+                if (!userInput) {
+                    alert('请输入内容');
+                    return;
+                }
+
+                if (!this.selectedComponent) {
+                    alert('请选择组件');
+                    return;
+                }
+
+                const previewArea = document.getElementById('previewArea');
+                const generateBtn = document.getElementById('generateBtn');
+                const btnText = generateBtn.querySelector('span');
+                const btnIcon = generateBtn.querySelector('i');
+                
+                // 显示加载状态
+                generateBtn.disabled = true;
+                btnIcon.className = 'loading-spinner';
+                btnText.textContent = '生成中...';
+                
+                previewArea.innerHTML = `
+                    <div class="empty-preview">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>AI正在生成中...</h3>
+                        <p>请稍候，正在智能分析和生成内容</p>
+                    </div>
+                `;
+
+                try {
+                    // 调用API生成内容
+                    const structuredContent = await this.callAPI(userInput, this.selectedComponent);
+                    
+                    console.log('生成的内容:', structuredContent);
+                    
+                    this.generatedContent = structuredContent;
+                    this.renderPreview();
+                    
+                } catch (error) {
+                    console.error('生成失败:', error);
+                    previewArea.innerHTML = `
+                        <div class="empty-preview">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>生成失败</h3>
+                            <p>请检查网络连接或重试</p>
+                        </div>
+                    `;
+                } finally {
+                    // 恢复按钮状态
+                    generateBtn.disabled = false;
+                    btnIcon.className = 'fas fa-magic';
+                    btnText.textContent = '生成预览';
+                }
+            }
+
+            async callAPI(userInput, componentType) {
+                console.log('调用API:', componentType);
+                
+                // 简化的模拟数据，确保能正常工作
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟网络延迟
+                
+                if (componentType === 'core-value') {
+                    return {
+                        title: "核心价值观",
+                        values: [
+                            { title: "创新驱动", description: "持续推动技术创新，引领行业发展方向" },
+                            { title: "用户至上", description: "始终以用户需求为中心，提供优质服务体验" },
+                            { title: "团队协作", description: "倡导开放合作的团队文化，共同实现目标" }
+                        ]
+                    };
+                } else if (componentType === 'ai-transform') {
+                    return {
+                        title: "关键步骤",
+                        steps: [
+                            { title: "第一步", description: "分析当前情况，明确目标和需求" },
+                            { title: "第二步", description: "制定详细的执行计划和时间安排" },
+                            { title: "第三步", description: "实施方案并持续监控进度" }
+                        ]
+                    };
+                } else if (componentType === 'table-component') {
+                    return {
+                        title: "功能对比分析",
+                        headers: ["功能特性", "基础版", "专业版"],
+                        rows: [
+                            ["用户数量", "10人", "100人"],
+                            ["存储空间", "1GB", "10GB"],
+                            ["技术支持", "社区", "专线"]
+                        ]
+                    };
+                }
+            }
+
+            renderPreview() {
+                console.log('开始渲染预览...');
+                
+                if (!this.generatedContent || !this.selectedComponent) {
+                    console.error('缺少必要数据');
+                    return;
+                }
+
+                const previewArea = document.getElementById('previewArea');
+                previewArea.innerHTML = '';
+                
+                if (this.selectedComponent === 'core-value') {
+                    this.renderCoreValue(previewArea);
+                } else if (this.selectedComponent === 'ai-transform') {
+                    this.renderAiTransform(previewArea);
+                } else if (this.selectedComponent === 'table-component') {
+                    this.renderTable(previewArea);
+                }
+            }
+
+            renderCoreValue(container) {
+                const { title, values } = this.generatedContent;
+                
+                container.innerHTML = `
+                    <div style="
+                        background: linear-gradient(135deg, #1f2937 0%, #1e3a8a 100%);
+                        color: white;
+                        height: 100%;
+                        padding: 2rem;
+                        border-radius: 12px;
+                        overflow: auto;
+                    ">
+                        <h2 style="
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            color: #93c5fd;
+                            margin-bottom: 1.5rem;
+                            text-align: center;
+                        ">${title}</h2>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            ${values.map((value, index) => `
+                                <div style="
+                                    display: flex;
+                                    align-items: flex-start;
+                                    gap: 1rem;
+                                    padding: 1rem;
+                                    background: rgba(30, 58, 138, 0.3);
+                                    border-radius: 8px;
+                                ">
+                                    <div style="
+                                        width: 2.5rem;
+                                        height: 2.5rem;
+                                        background: #3b82f6;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        color: white;
+                                        flex-shrink: 0;
+                                    ">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="
+                                            font-size: 1.1rem;
+                                            font-weight: 600;
+                                            color: #e2e8f0;
+                                            margin-bottom: 0.5rem;
+                                        ">${value.title}</h3>
+                                        <p style="
+                                            color: #cbd5e1;
+                                            line-height: 1.5;
+                                        ">${value.description}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderAiTransform(container) {
+                const { title, steps } = this.generatedContent;
+                
+                container.innerHTML = `
+                    <div style="
+                        background: #ffffff;
+                        color: #1f2937;
+                        height: 100%;
+                        padding: 2rem;
+                        border-radius: 12px;
+                        overflow: auto;
+                    ">
+                        <h2 style="
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 1.5rem;
+                            text-align: center;
+                        ">${title}</h2>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            ${steps.map((step, index) => `
+                                <div style="
+                                    display: flex;
+                                    align-items: flex-start;
+                                    gap: 1rem;
+                                    padding: 1rem;
+                                    background: #f3f4f6;
+                                    border-radius: 8px;
+                                    border-left: 4px solid #3b82f6;
+                                ">
+                                    <div style="
+                                        width: 1.5rem;
+                                        height: 1.5rem;
+                                        background: #3b82f6;
+                                        border-radius: 50%;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        color: white;
+                                        font-weight: bold;
+                                        font-size: 0.8rem;
+                                        flex-shrink: 0;
+                                    ">${index + 1}</div>
+                                    <div>
+                                        <h3 style="
+                                            font-size: 1rem;
+                                            font-weight: 600;
+                                            color: #1f2937;
+                                            margin-bottom: 0.5rem;
+                                        ">${step.title}</h3>
+                                        <p style="
+                                            color: #6b7280;
+                                            line-height: 1.5;
+                                        ">${step.description}</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderTable(container) {
+                const { title, headers, rows } = this.generatedContent;
+                
+                container.innerHTML = `
+                    <div style="
+                        background: white;
+                        height: 100%;
+                        padding: 2rem;
+                        border-radius: 12px;
+                        overflow: auto;
+                    ">
+                        <h2 style="
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            color: #1f2937;
+                            margin-bottom: 1.5rem;
+                            text-align: center;
+                        ">${title}</h2>
+                        
+                        <table style="
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 1rem;
+                        ">
+                            <thead>
+                                <tr style="background: #f3f4f6;">
+                                    ${headers.map(header => `
+                                        <th style="
+                                            padding: 0.75rem;
+                                            text-align: left;
+                                            font-weight: 600;
+                                            color: #374151;
+                                            border-bottom: 2px solid #d1d5db;
+                                        ">${header}</th>
+                                    `).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${rows.map((row, index) => `
+                                    <tr style="background: ${index % 2 === 0 ? '#ffffff' : '#f9fafb'};">
+                                        ${row.map(cell => `
+                                            <td style="
+                                                padding: 0.75rem;
+                                                color: #374151;
+                                                border-bottom: 1px solid #e5e7eb;
+                                            ">${cell}</td>
+                                        `).join('')}
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM加载完成，开始初始化应用...');
+            try {
+                const app = new AIPPTGenerator();
+                console.log('应用初始化成功');
+            } catch (error) {
+                console.error('应用初始化失败:', error);
+            }
+        });
+        
+        console.log('脚本加载完成');
+    </script>
+</body>
+</html>

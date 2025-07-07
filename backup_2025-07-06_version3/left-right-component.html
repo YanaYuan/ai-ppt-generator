@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>左右分栏组件</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .divider {
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(237, 137, 54, 0.7), transparent);
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container bg-gradient-to-br from-gray-900 to-blue-900 text-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-tech-pattern opacity-10"></div>
+        
+        <!-- Abstract Tech Elements -->
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full border border-blue-400 opacity-10"></div>
+        <div class="absolute bottom-40 left-20 w-40 h-40 rounded-full border border-blue-400 opacity-10"></div>
+        
+        <!-- Main Content -->
+        <main class="px-16 pt-12 pb-8">
+            <!-- Title Section -->
+            <div class="w-full mb-6">
+                <h2 class="text-2xl font-semibold text-blue-300 mb-4">
+                    <i class="fas fa-columns mr-2"></i><span id="main-title">优劣对比</span>
+                </h2>
+            </div>
+            
+            <!-- Comparison Content -->
+            <div class="w-full">
+                <p id="summary-conclusion" class="text-blue-200 mb-6">将不同内容放置在页面的左右两侧，形成视觉上的区隔，强调它们之间的差异。</p>
+                <div class="flex items-center justify-center">
+                    <div class="w-full flex">
+                        <div class="w-1/2 p-4 bg-blue-800 bg-opacity-50 rounded-l-lg" id="left-side">
+                    <div>
+                        <div class="text-center mb-2">
+                            <i class="fas fa-thumbs-up text-green-400 text-3xl mb-2"></i>
+                            <h4 class="text-lg font-medium text-white">优势方</h4>
+                        </div>
+                        <ul class="text-blue-200 text-sm mt-2 text-left">
+                            <li class="flex items-start mb-1">
+                                <i class="fas fa-check text-green-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>对称或非对称布局</span>
+                            </li>
+                            <li class="flex items-start mb-1">
+                                <i class="fas fa-check text-green-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>视觉引导元素连接</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>对比色强化差异</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="divider mx-2"></div>
+                <div class="w-1/2 p-4 bg-blue-800 bg-opacity-30 rounded-r-lg" id="right-side">
+                    <div>
+                        <div class="text-center mb-2">
+                            <i class="fas fa-thumbs-down text-red-400 text-3xl mb-2"></i>
+                            <h4 class="text-lg font-medium text-white">劣势方</h4>
+                        </div>
+                        <ul class="text-blue-200 text-sm mt-2 text-left">
+                            <li class="flex items-start mb-1">
+                                <i class="fas fa-times text-red-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>内容过多拥挤</span>
+                            </li>
+                            <li class="flex items-start mb-1">
+                                <i class="fas fa-times text-red-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>缺乏视觉层次</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-times text-red-400 mr-2 mt-1 flex-shrink-0"></i>
+                                <span>信息传递不明确</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            console.log('left-right-component 收到消息:', event.data);
+            if (event.data.type === 'updateContent' && event.data.component === 'left-right-component') {
+                console.log('开始更新left-right-component内容:', event.data.content);
+                updateContent(event.data.content);
+            }
+        });
+
+        function updateContent(content) {
+            console.log('updateContent被调用，内容:', content);
+            
+            // 更新标题
+            const titleElement = document.getElementById('main-title');
+            if (titleElement && content.title) {
+                console.log('更新标题:', content.title);
+                titleElement.textContent = content.title;
+            }
+
+            // 更新总结结论 - 智能生成有深度的总结
+            const summaryElement = document.getElementById('summary-conclusion');
+            if (summaryElement) {
+                let conclusion = '';
+                if (content.leftSide && content.rightSide) {
+                    // 根据对比内容生成智能结论
+                    conclusion = generateSmartConclusion(content);
+                } else if (content.description) {
+                    conclusion = content.description;
+                } else {
+                    conclusion = generateDefaultConclusion(content.title || '对比分析');
+                }
+                console.log('更新总结结论:', conclusion);
+                summaryElement.textContent = conclusion;
+            }
+
+            // 更新左侧内容
+            if (content.leftSide) {
+                console.log('更新左侧内容:', content.leftSide);
+                const leftContainer = document.getElementById('left-side');
+                const leftTitle = leftContainer ? leftContainer.querySelector('h4') : null;
+                const leftIcon = leftContainer ? leftContainer.querySelector('i.text-3xl') : null;
+                const leftList = leftContainer ? leftContainer.querySelector('ul') : null;
+                
+                if (leftTitle && content.leftSide.title) {
+                    console.log('更新左侧标题:', content.leftSide.title);
+                    leftTitle.textContent = content.leftSide.title;
+                }
+                
+                if (leftIcon && content.leftSide.icon) {
+                    console.log('更新左侧图标:', content.leftSide.icon);
+                    leftIcon.className = `fas fa-${content.leftSide.icon} text-green-400 text-3xl mb-2`;
+                }
+                
+                if (leftList && content.leftSide.items) {
+                    console.log('更新左侧列表:', content.leftSide.items);
+                    leftList.innerHTML = '';
+                    content.leftSide.items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'flex items-start mb-1';
+                        li.innerHTML = `
+                            <i class="fas fa-check text-green-400 mr-2 mt-1 flex-shrink-0"></i>
+                            <span>${item}</span>
+                        `;
+                        leftList.appendChild(li);
+                    });
+                }
+            }
+
+            // 更新右侧内容
+            if (content.rightSide) {
+                console.log('更新右侧内容:', content.rightSide);
+                const rightContainer = document.getElementById('right-side');
+                const rightTitle = rightContainer ? rightContainer.querySelector('h4') : null;
+                const rightIcon = rightContainer ? rightContainer.querySelector('i.text-3xl') : null;
+                const rightList = rightContainer ? rightContainer.querySelector('ul') : null;
+                
+                if (rightTitle && content.rightSide.title) {
+                    console.log('更新右侧标题:', content.rightSide.title);
+                    rightTitle.textContent = content.rightSide.title;
+                }
+                
+                if (rightIcon && content.rightSide.icon) {
+                    console.log('更新右侧图标:', content.rightSide.icon);
+                    rightIcon.className = `fas fa-${content.rightSide.icon} text-red-400 text-3xl mb-2`;
+                }
+                
+                if (rightList && content.rightSide.items) {
+                    console.log('更新右侧列表:', content.rightSide.items);
+                    rightList.innerHTML = '';
+                    content.rightSide.items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.className = 'flex items-start mb-1';
+                        li.innerHTML = `
+                            <i class="fas fa-times text-red-400 mr-2 mt-1 flex-shrink-0"></i>
+                            <span>${item}</span>
+                        `;
+                        rightList.appendChild(li);
+                    });
+                }
+            }
+        }
+        
+        // 智能生成有深度的总结结论
+        function generateSmartConclusion(content) {
+            const title = content.title || '对比分析';
+            const leftTitle = content.leftSide?.title || '优势';
+            const rightTitle = content.rightSide?.title || '劣势';
+            const leftItems = content.leftSide?.items || [];
+            const rightItems = content.rightSide?.items || [];
+            
+            // 基于内容主题生成不同类型的结论
+            if (title.includes('旅游') || title.includes('景点')) {
+                return `综合评估${title}的利弊得失，${leftTitle}突出体现在${leftItems.length}个核心优势，但${rightTitle}也存在${rightItems.length}个关键挑战，需要权衡考虑以做出最优决策。`;
+            } else if (title.includes('产品') || title.includes('功能')) {
+                return `通过${title}的全面对比分析，${leftTitle}展现出${leftItems.length}项关键优势，而${rightTitle}暴露了${rightItems.length}个潜在风险，为产品优化提供了明确的改进方向。`;
+            } else if (title.includes('技术') || title.includes('方案')) {
+                return `从技术角度深入分析${title}，${leftTitle}的${leftItems.length}个突出特点构成了核心竞争力，但${rightTitle}中的${rightItems.length}个制约因素需要重点关注和解决。`;
+            } else if (title.includes('市场') || title.includes('商业')) {
+                return `市场环境下的${title}呈现出复杂态势，${leftTitle}带来的${leftItems.length}个机遇值得把握，同时${rightTitle}中的${rightItems.length}个挑战需要制定相应的应对策略。`;
+            } else if (title.includes('教育') || title.includes('学习')) {
+                return `教育领域的${title}需要平衡发展，${leftTitle}体现的${leftItems.length}个积极因素促进成长，但${rightTitle}中的${rightItems.length}个问题需要针对性改进。`;
+            } else {
+                return `深入分析${title}的双重属性，${leftTitle}所带来的${leftItems.length}个积极影响与${rightTitle}存在的${rightItems.length}个消极因素形成鲜明对比，需要综合权衡以实现最优平衡。`;
+            }
+        }
+        
+        // 生成默认的有深度的结论
+        function generateDefaultConclusion(title) {
+            const conclusions = [
+                `${title}的成功关键在于充分发挥优势的同时，有效规避和化解各种风险因素。`,
+                `通过${title}的对比分析，我们能够更清晰地识别机遇与挑战，为决策提供有价值的参考依据。`,
+                `${title}展现出的多维度特征需要我们以系统性思维来理解，才能制定出最适合的策略方案。`,
+                `综合考量${title}的各个方面，平衡发展是实现最优效果的关键所在。`,
+                `${title}的复杂性要求我们既要看到光明面，也要正视潜在的挑战，以便做出明智的选择。`
+            ];
+            return conclusions[Math.floor(Math.random() * conclusions.length)];
+        }
+    </script>
+</body>
+</html>

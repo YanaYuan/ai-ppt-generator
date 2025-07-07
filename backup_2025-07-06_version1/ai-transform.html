@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AI如何改变传统PPT制作</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="slide-container bg-gradient-to-br from-gray-900 to-blue-900 text-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-tech-pattern opacity-10"></div>
+        
+        <!-- Abstract Tech Elements -->
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full border border-blue-400 opacity-10"></div>
+        <div class="absolute bottom-40 left-20 w-40 h-40 rounded-full border border-blue-400 opacity-10"></div>
+        
+        <!-- Main Content -->
+        <main class="px-16 pt-12 flex">
+            <!-- AI Transformation -->
+            <div class="w-full">
+                <h2 class="text-2xl font-semibold text-blue-300 mb-4">
+                    <i class="fas fa-magic mr-2"></i>AI如何改变传统PPT制作
+                </h2>
+                <div class="relative pl-8 mb-3">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                    <p class="text-lg">
+                        <span class="text-cyan-200 font-medium">输入简化：</span>
+                        用户只需输入提示词（主题、大纲或文本内容）
+                    </p>
+                </div>
+                <div class="relative pl-8 mb-3">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                    <p class="text-lg">
+                        <span class="text-cyan-200 font-medium">内容生成：</span>
+                        自动生成幻灯片内容、大纲结构
+                    </p>
+                </div>
+                <div class="relative pl-8 mb-3">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                    <p class="text-lg">
+                        <span class="text-cyan-200 font-medium">设计优化：</span>
+                        推荐设计布局、优化排版、整合多媒体元素
+                    </p>
+                </div>
+                <div class="relative pl-8">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                    <p class="text-lg">
+                        <span class="text-cyan-200 font-medium">效率提升：</span>
+                        将传统数小时的工作压缩至几分钟完成
+                    </p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'updateContent' && event.data.component === 'ai-transform') {
+                updateContent(event.data.content);
+            }
+        });
+
+        function updateContent(content) {
+            // 更新标题
+            const titleElement = document.querySelector('header h1');
+            if (titleElement && content.title) {
+                titleElement.textContent = content.title;
+            }
+
+            // 更新副标题
+            const subTitleElement = document.querySelector('main h2');
+            if (subTitleElement && content.title) {
+                subTitleElement.innerHTML = `<i class="fas fa-magic mr-2"></i>${content.title}`;
+            }
+
+            // 更新步骤内容
+            const stepItems = document.querySelectorAll('main .relative');
+            if (content.steps && content.steps.length > 0) {
+                content.steps.forEach((step, index) => {
+                    if (stepItems[index]) {
+                        const stepText = stepItems[index].querySelector('p');
+                        if (stepText) {
+                            stepText.innerHTML = `<span class="text-cyan-200 font-medium">${step.title}：</span>${step.description}`;
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

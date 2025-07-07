@@ -1,0 +1,60 @@
+# .vercelignore - 告诉Vercel忽略这些文件和目录
+
+# 备份目录
+backup_*/
+temp_*/
+old_*/
+
+# 开发工具
+*.bat
+*.sh
+check_deployment*
+deploy_*
+fix_*
+rollback_*
+upload_*
+prepare_*
+
+# 文档和指南（保留README）
+*_GUIDE.md
+*_CHECKLIST.md
+*_SUMMARY.md
+*_TROUBLESHOOTING.md
+*_STATUS.md
+*_REPORT.md
+FIX_*.md
+DEPLOY*.md
+UPLOAD*.md
+VERCEL_*.md
+QUICK_*.md
+FINAL_*.md
+
+# 测试文件
+test-*.html
+debug-*.html
+*-test.html
+*-diagnosis.html
+diagnostic*.html
+prompt-debugger*.html
+api-config-tester.html
+api-diagnosis.html
+basic-test.html
+simple-test.html
+screenshot-test.html
+postmessage-test.html
+
+# 配置文件
+config.local.js
+.env*
+temp_*.txt
+
+# IDE
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# Node modules（如果有的话）
+node_modules/

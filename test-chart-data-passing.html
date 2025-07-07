@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>柱状图表数据传递测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .test-case { background: white; margin: 20px 0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .code-block { background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-line; }
+        iframe { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>柱状图表数据传递验证</h1>
+    <p>测试数据是否正确传递到图表组件</p>
+
+    <div class="test-case">
+        <h3>测试数据</h3>
+        <div class="code-block" id="test-data"></div>
+        <iframe id="chart-iframe" src="chart-component.html"></iframe>
+    </div>
+
+    <script>
+        // 测试数据
+        const testData = {
+            title: "中国科技公司市值",
+            description: "展示中国领先科技公司的市值表现",
+            unit: "亿元",
+            chartData: [
+                {"category": "腾讯", "value": 6500},
+                {"category": "阿里巴巴", "value": 6100},
+                {"category": "字节跳动", "value": 5000},
+                {"category": "百度", "value": 3000},
+                {"category": "京东", "value": 2800}
+            ]
+        };
+
+        // 显示测试数据
+        document.getElementById('test-data').textContent = JSON.stringify(testData, null, 2);
+
+        // 等待iframe加载后发送消息
+        setTimeout(() => {
+            const iframe = document.getElementById('chart-iframe');
+            if (iframe && iframe.contentWindow) {
+                console.log('发送数据:', testData);
+                iframe.contentWindow.postMessage({
+                    type: 'updateContent',
+                    component: 'chart-component',
+                    content: testData
+                }, '*');
+            }
+        }, 1000);
+
+        // 监听来自iframe的消息
+        window.addEventListener('message', function(event) {
+            console.log('收到iframe消息:', event.data);
+        });
+    </script>
+</body>
+</html>

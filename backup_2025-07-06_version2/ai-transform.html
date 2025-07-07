@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AI如何改变传统PPT制作</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="slide-container bg-gradient-to-br from-gray-900 to-blue-900 text-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-tech-pattern opacity-10"></div>
+        
+        <!-- Abstract Tech Elements -->
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full border border-blue-400 opacity-10"></div>
+        <div class="absolute bottom-40 left-20 w-40 h-40 rounded-full border border-blue-400 opacity-10"></div>
+        
+        <!-- Main Content -->
+        <main class="px-16 pt-12 flex">
+            <!-- Simple List -->
+            <div class="w-full">
+                <h2 class="text-2xl font-semibold text-blue-300 mb-4">
+                    <i class="fas fa-magic mr-2"></i><span id="main-title">关键流程步骤</span>
+                </h2>
+                
+                <!-- 动态步骤容器 -->
+                <div id="steps-container">
+                    <div class="relative pl-8 mb-3">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                        <p class="text-lg">
+                            <span class="text-cyan-200 font-medium">第一步：</span>
+                            分析当前情况，明确目标和需求
+                        </p>
+                    </div>
+                    <div class="relative pl-8">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                        <p class="text-lg">
+                            <span class="text-cyan-200 font-medium">第二步：</span>
+                            制定详细的执行计划和时间安排
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            console.log('简约列表组件收到消息:', event.data);
+            if (event.data.type === 'updateContent' && event.data.component === 'ai-transform') {
+                console.log('开始更新简约列表组件内容:', event.data.content);
+                updateContent(event.data.content);
+            }
+        });
+
+        function updateContent(content) {
+            console.log('更新内容函数被调用:', content);
+            
+            // 更新主标题
+            const mainTitleElement = document.getElementById('main-title');
+            if (mainTitleElement && content.title) {
+                console.log('更新主标题:', content.title);
+                mainTitleElement.textContent = content.title;
+            }
+
+            // 动态生成步骤内容
+            if (content.steps && content.steps.length > 0) {
+                console.log('动态生成步骤:', content.steps);
+                
+                // 找到步骤容器
+                const stepsContainer = document.getElementById('steps-container');
+                if (!stepsContainer) return;
+                
+                // 清除现有步骤
+                stepsContainer.innerHTML = '';
+                
+                // 动态生成新的步骤
+                content.steps.forEach((step, index) => {
+                    const stepDiv = document.createElement('div');
+                    const isLast = index === content.steps.length - 1;
+                    stepDiv.className = isLast ? 'relative pl-8' : 'relative pl-8 mb-3';
+                    
+                    stepDiv.innerHTML = `
+                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-transparent"></div>
+                        <p class="text-lg">
+                            <span class="text-cyan-200 font-medium">${step.title}：</span>
+                            ${step.description}
+                        </p>
+                    `;
+                    
+                    stepsContainer.appendChild(stepDiv);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

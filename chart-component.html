@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>对比图表组件</title>
+    <link href="https://picture-search.tiangong.cn/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"/>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="slide-container bg-gradient-to-br from-gray-900 to-blue-900 text-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-tech-pattern opacity-10"></div>
+        
+        <!-- Abstract Tech Elements -->
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full border border-blue-400 opacity-10"></div>
+        <div class="absolute bottom-40 left-20 w-40 h-40 rounded-full border border-blue-400 opacity-10"></div>
+        
+        <!-- Main Content -->
+        <main class="px-16 pt-12 pb-8">
+            <!-- Title Section -->
+            <div class="w-full mb-6">
+                <h2 class="text-2xl font-semibold text-blue-300 mb-4">
+                    <i class="fas fa-chart-bar mr-2"></i><span id="main-title">对比图表</span>
+                </h2>
+            </div>
+            
+            <!-- Chart Content -->
+            <div class="w-full">
+                <p class="text-blue-200 mb-6">将复杂的数据信息转化为直观的视觉呈现，清晰展示数据差异。</p>
+                <div class="flex items-center justify-center">
+                    <div class="w-full h-48" id="comparison-chart"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let chartData = [
+            {category: "产品A", value: 65},
+            {category: "产品B", value: 40},
+            {category: "产品C", value: 85}
+        ];
+        let dataUnit = "个"; // 默认单位改为绝对数值
+
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            console.log('柱状图表组件收到消息:', event.data);
+            if (event.data.type === 'updateContent' && event.data.component === 'chart-component') {
+                console.log('开始更新柱状图表组件内容:', event.data.content);
+                updateContent(event.data.content);
+            }
+        });
+
+        function updateContent(content) {
+            console.log('更新内容函数被调用:', content);
+            
+            // 更新标题
+            const titleElement = document.getElementById('main-title');
+            if (titleElement && content.title) {
+                console.log('更新标题:', content.title);
+                titleElement.textContent = content.title;
+            }
+
+            // 更新描述
+            const descElement = document.querySelector('.text-blue-200');
+            if (descElement && content.description) {
+                console.log('更新描述:', content.description);
+                descElement.textContent = content.description;
+            }
+
+            // 更新单位
+            if (content.unit) {
+                console.log('更新单位:', content.unit);
+                dataUnit = content.unit;
+            }
+
+            // 更新图表数据
+            if (content.chartData && content.chartData.length > 0) {
+                console.log('更新图表数据:', content.chartData);
+                chartData = content.chartData;
+                // 清除现有图表
+                d3.select('#comparison-chart').selectAll('*').remove();
+                // 重新绘制图表
+                createChart();
+            }
+        }
+
+        function createChart() {
+            const width = document.getElementById('comparison-chart').clientWidth;
+            const height = document.getElementById('comparison-chart').clientHeight;
+            const margin = {top: 20, right: 20, bottom: 30, left: 40};
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            const svg = d3.select('#comparison-chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+                
+            const g = svg.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+                
+            const x = d3.scaleBand()
+                .domain(chartData.map(d => d.category))
+                .range([0, innerWidth])
+                .padding(0.3);
+                
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(chartData, d => d.value) * 1.1])
+                .range([innerHeight, 0]);
+                
+            // Add X axis
+            g.append('g')
+                .attr('transform', `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                .attr('fill', '#93c5fd')
+                .style('font-size', '12px');
+                
+            // Add Y axis
+            g.append('g')
+                .call(d3.axisLeft(y).ticks(5))
+                .selectAll('text')
+                .attr('fill', '#93c5fd')
+                .style('font-size', '12px');
+                
+            // Add bars
+            const maxValue = d3.max(chartData, d => d.value);
+            g.selectAll('.bar')
+                .data(chartData)
+                .enter().append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => x(d.category))
+                .attr('y', d => y(d.value))
+                .attr('width', x.bandwidth())
+                .attr('height', d => innerHeight - y(d.value))
+                .attr('fill', d => {
+                    // 数值最大的柱子显示橙色，其他显示蓝色
+                    return d.value === maxValue ? '#f97316' : '#3b82f6';
+                })
+                .attr('rx', 4)
+                .attr('ry', 4);
+                
+            // Add value labels with unit
+            g.selectAll('.label')
+                .data(chartData)
+                .enter().append('text')
+                .attr('class', 'label')
+                .attr('x', d => x(d.category) + x.bandwidth() / 2)
+                .attr('y', d => y(d.value) - 5)
+                .attr('text-anchor', 'middle')
+                .attr('fill', 'white')
+                .style('font-size', '12px')
+                .style('font-weight', 'bold')
+                .text(d => {
+                    // 根据单位类型格式化显示
+                    if (dataUnit === '分' && d.value % 1 !== 0) {
+                        return d.value + dataUnit;
+                    } else if (dataUnit === '万元' || dataUnit === '万人') {
+                        return d.value + dataUnit;
+                    } else {
+                        return d.value + dataUnit;
+                    }
+                });
+        }
+
+        // Simple D3.js chart for comparison
+        document.addEventListener('DOMContentLoaded', function() {
+            createChart();
+        });
+    </script>
+</body>
+</html>

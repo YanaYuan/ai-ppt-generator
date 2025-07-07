@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Vercel 实时 API 诊断工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .test-card {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .test-button:hover {
+            background: #2563eb;
+        }
+        
+        .test-button:disabled {
+            background: #64748b;
+            cursor: not-allowed;
+        }
+        
+        .result-area {
+            background: #111827;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .success {
+            color: #10b981;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        .info {
+            color: #60a5fa;
+        }
+        
+        .warning {
+            color: #f59e0b;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-ok {
+            background: #10b981;
+        }
+        
+        .status-error {
+            background: #ef4444;
+        }
+        
+        .status-unknown {
+            background: #6b7280;
+        }
+        
+        .summary-card {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .auto-test-section {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .loading {
+            opacity: 0.6;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .timestamp {
+            color: #9ca3af;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Vercel 实时 API 诊断工具</h1>
+            <p>专为生产环境 API 404 问题设计的诊断工具</p>
+            <p id="currentUrl" class="info"></p>
+        </div>
+        
+        <div class="summary-card">
+            <h3>🎯 当前环境状态</h3>
+            <div id="environmentInfo"></div>
+        </div>
+        
+        <div class="status-grid">
+            <!-- 基础连通性测试 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="basicStatus"></span>
+                    🌐 基础连通性
+                </h3>
+                <button class="test-button" onclick="testBasicConnectivity()">测试基础连通性</button>
+                <div class="result-area" id="basicResult">等待测试...</div>
+            </div>
+            
+            <!-- Hello API 测试 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="helloStatus"></span>
+                    👋 Hello API
+                </h3>
+                <button class="test-button" onclick="testHelloAPI()">测试 /api/hello</button>
+                <div class="result-area" id="helloResult">等待测试...</div>
+            </div>
+            
+            <!-- 新测试 API -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="testApiStatus"></span>
+                    🧪 测试 API
+                </h3>
+                <button class="test-button" onclick="testNewTestAPI()">测试 /api/test</button>
+                <div class="result-area" id="testApiResult">等待测试...</div>
+            </div>
+            
+            <!-- OpenAI API 预检 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="openaiPreStatus"></span>
+                    🔍 OpenAI API 预检
+                </h3>
+                <button class="test-button" onclick="testOpenAIPrecheck()">测试 OPTIONS 请求</button>
+                <div class="result-area" id="openaiPreResult">等待测试...</div>
+            </div>
+            
+            <!-- OpenAI API 完整测试 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="openaiFullStatus"></span>
+                    🤖 OpenAI API 完整测试
+                </h3>
+                <button class="test-button" onclick="testOpenAIFull()">测试完整请求</button>
+                <div class="result-area" id="openaiFullResult">等待测试...</div>
+            </div>
+            
+            <!-- 环境变量检查 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="envStatus"></span>
+                    ⚙️ 环境变量
+                </h3>
+                <button class="test-button" onclick="testEnvironmentVars()">检查环境变量</button>
+                <div class="result-area" id="envResult">等待测试...</div>
+            </div>
+            
+            <!-- 网络诊断 -->
+            <div class="test-card">
+                <h3 class="test-title">
+                    <span class="status-indicator status-unknown" id="networkStatus"></span>
+                    🌍 网络诊断
+                </h3>
+                <button class="test-button" onclick="testNetworkDiagnostics()">网络连接诊断</button>
+                <div class="result-area" id="networkResult">等待测试...</div>
+            </div>
+        </div>
+        
+        <div class="auto-test-section">
+            <h3>🚀 自动化测试</h3>
+            <p>一键运行所有测试，快速定位问题</p>
+            <button class="test-button" onclick="runAllTests()" id="autoTestBtn">运行所有测试</button>
+            <div class="result-area" id="autoTestResult">点击上方按钮开始自动测试...</div>
+        </div>
+    </div>
+
+    <script>
+        // 更新当前 URL 显示
+        document.getElementById('currentUrl').textContent = `当前 URL: ${window.location.href}`;
+        
+        // 显示环境信息
+        function updateEnvironmentInfo() {
+            const info = {
+                '主机名': window.location.hostname,
+                '协议': window.location.protocol,
+                '端口': window.location.port || '默认',
+                '路径': window.location.pathname,
+                '是否 Vercel': window.location.hostname.includes('vercel.app') ? '是' : '否',
+                '用户代理': navigator.userAgent.substring(0, 100) + '...',
+                '时间戳': new Date().toLocaleString()
+            };
+            
+            let html = '';
+            for (const [key, value] of Object.entries(info)) {
+                html += `<div><strong>${key}:</strong> ${value}</div>`;
+            }
+            document.getElementById('environmentInfo').innerHTML = html;
+        }
+        
+        updateEnvironmentInfo();
+        
+        // 通用的结果显示函数
+        function showResult(elementId, content, type = 'info', statusId = null) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            
+            element.innerHTML = `<div class="log-entry">
+                <div class="timestamp">[${timestamp}]</div>
+                <div class="${type}">${content}</div>
+            </div>` + element.innerHTML;
+            
+            // 更新状态指示器
+            if (statusId) {
+                const statusEl = document.getElementById(statusId);
+                statusEl.className = `status-indicator ${type === 'success' ? 'status-ok' : type === 'error' ? 'status-error' : 'status-unknown'}`;
+            }
+        }
+        
+        // 测试基础连通性
+        async function testBasicConnectivity() {
+            showResult('basicResult', '开始测试基础连通性...', 'info');
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch(window.location.origin, {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+                const endTime = performance.now();
+                const latency = Math.round(endTime - startTime);
+                
+                if (response.ok) {
+                    showResult('basicResult', `✅ 基础连通性正常\n响应时间: ${latency}ms\n状态码: ${response.status}`, 'success', 'basicStatus');
+                } else {
+                    showResult('basicResult', `⚠️ 响应异常\n状态码: ${response.status}\n响应时间: ${latency}ms`, 'warning', 'basicStatus');
+                }
+            } catch (error) {
+                showResult('basicResult', `❌ 连接失败: ${error.message}`, 'error', 'basicStatus');
+            }
+        }
+        
+        // 测试 Hello API
+        async function testHelloAPI() {
+            showResult('helloResult', '测试 Hello API...', 'info');
+            
+            try {
+                const response = await fetch('/api/hello', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-cache'
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        showResult('helloResult', `✅ Hello API 正常工作\n响应: ${JSON.stringify(data, null, 2)}`, 'success', 'helloStatus');
+                    } catch (e) {
+                        showResult('helloResult', `✅ Hello API 响应成功\n原始响应: ${responseText}`, 'success', 'helloStatus');
+                    }
+                } else {
+                    showResult('helloResult', `❌ Hello API 失败\n状态: ${response.status} ${response.statusText}\n响应: ${responseText}`, 'error', 'helloStatus');
+                }
+            } catch (error) {
+                showResult('helloResult', `❌ Hello API 请求失败: ${error.message}`, 'error', 'helloStatus');
+            }
+        }
+        
+        // 测试新的测试 API 端点
+        async function testNewTestAPI() {
+            showResult('testApiResult', '测试新的测试API端点...', 'info');
+            
+            try {
+                const response = await fetch('/api/test', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-cache'
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        showResult('testApiResult', `✅ 测试API 正常工作\n响应: ${JSON.stringify(data, null, 2)}`, 'success', 'testApiStatus');
+                    } catch (e) {
+                        showResult('testApiResult', `✅ 测试API 响应成功\n原始响应: ${responseText}`, 'success', 'testApiStatus');
+                    }
+                } else {
+                    showResult('testApiResult', `❌ 测试API 失败\n状态: ${response.status} ${response.statusText}\n响应: ${responseText}`, 'error', 'testApiStatus');
+                }
+            } catch (error) {
+                showResult('testApiResult', `❌ 测试API 请求失败: ${error.message}`, 'error', 'testApiStatus');
+            }
+        }
+        
+        // 测试 OpenAI API 预检
+        async function testOpenAIPrecheck() {
+            showResult('openaiPreResult', '测试 OpenAI API OPTIONS 请求...', 'info');
+            
+            try {
+                const response = await fetch('/api/openai', {
+                    method: 'OPTIONS',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-cache'
+                });
+                
+                const headers = {};
+                response.headers.forEach((value, key) => headers[key] = value);
+                
+                if (response.ok) {
+                    showResult('openaiPreResult', `✅ OpenAI API 预检通过\n状态: ${response.status}\nCORS 头: ${JSON.stringify(headers, null, 2)}`, 'success', 'openaiPreStatus');
+                } else {
+                    showResult('openaiPreResult', `⚠️ OpenAI API 预检异常\n状态: ${response.status} ${response.statusText}\n头信息: ${JSON.stringify(headers, null, 2)}`, 'warning', 'openaiPreStatus');
+                }
+            } catch (error) {
+                showResult('openaiPreResult', `❌ OpenAI API 预检失败: ${error.message}`, 'error', 'openaiPreStatus');
+            }
+        }
+        
+        // 测试 OpenAI API 完整请求
+        async function testOpenAIFull() {
+            showResult('openaiFullResult', '测试 OpenAI API 完整请求...', 'info');
+            
+            try {
+                const testData = {
+                    userInput: "测试输入：展示我们公司的核心价值观",
+                    componentType: "core-value",
+                    prompt: "请生成一个简单的核心价值观列表测试数据"
+                };
+                
+                const response = await fetch('/api/openai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData),
+                    cache: 'no-cache'
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        showResult('openaiFullResult', `✅ OpenAI API 完整测试成功\n响应数据: ${JSON.stringify(data, null, 2)}`, 'success', 'openaiFullStatus');
+                    } catch (e) {
+                        showResult('openaiFullResult', `⚠️ OpenAI API 响应格式异常\n原始响应: ${responseText}`, 'warning', 'openaiFullStatus');
+                    }
+                } else {
+                    showResult('openaiFullResult', `❌ OpenAI API 完整测试失败\n状态: ${response.status} ${response.statusText}\n响应: ${responseText}`, 'error', 'openaiFullStatus');
+                }
+            } catch (error) {
+                showResult('openaiFullResult', `❌ OpenAI API 完整请求失败: ${error.message}`, 'error', 'openaiFullStatus');
+            }
+        }
+        
+        // 测试环境变量
+        async function testEnvironmentVars() {
+            showResult('envResult', '检查环境变量...', 'info');
+            
+            try {
+                const response = await fetch('/api/check-env', {
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        showResult('envResult', `✅ 环境变量检查完成\n结果: ${JSON.stringify(data, null, 2)}`, 'success', 'envStatus');
+                    } catch (e) {
+                        showResult('envResult', `⚠️ 环境变量 API 响应格式异常\n原始响应: ${responseText}`, 'warning', 'envStatus');
+                    }
+                } else {
+                    showResult('envResult', `❌ 环境变量检查失败\n状态: ${response.status} ${response.statusText}\n响应: ${responseText}`, 'error', 'envStatus');
+                }
+            } catch (error) {
+                showResult('envResult', `❌ 环境变量检查请求失败: ${error.message}`, 'error', 'envStatus');
+            }
+        }
+        
+        // 网络诊断
+        async function testNetworkDiagnostics() {
+            showResult('networkResult', '进行网络诊断...', 'info');
+            
+            const diagnostics = {
+                'DNS解析': await testDNS(),
+                'CDN可达性': await testCDN(),
+                '浏览器信息': getBrowserInfo()
+            };
+            
+            showResult('networkResult', `🌍 网络诊断完成\n${JSON.stringify(diagnostics, null, 2)}`, 'info', 'networkStatus');
+        }
+        
+        async function testDNS() {
+            try {
+                const start = performance.now();
+                await fetch('https://1.1.1.1/', { method: 'HEAD', mode: 'no-cors' });
+                const end = performance.now();
+                return `正常 (${Math.round(end - start)}ms)`;
+            } catch (e) {
+                return `异常: ${e.message}`;
+            }
+        }
+        
+        async function testCDN() {
+            try {
+                const start = performance.now();
+                await fetch('https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js', { method: 'HEAD' });
+                const end = performance.now();
+                return `正常 (${Math.round(end - start)}ms)`;
+            } catch (e) {
+                return `异常: ${e.message}`;
+            }
+        }
+        
+        function getBrowserInfo() {
+            return {
+                '浏览器': navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || '未知',
+                '平台': navigator.platform,
+                '语言': navigator.language,
+                '在线状态': navigator.onLine ? '在线' : '离线'
+            };
+        }
+        
+        // 运行所有测试
+        async function runAllTests() {
+            const btn = document.getElementById('autoTestBtn');
+            btn.disabled = true;
+            btn.textContent = '正在运行测试...';
+            
+            showResult('autoTestResult', '🚀 开始自动化测试...', 'info');
+            
+            const tests = [
+                { name: '基础连通性', func: testBasicConnectivity },
+                { name: 'Hello API', func: testHelloAPI },
+                { name: 'OpenAI 预检', func: testOpenAIPrecheck },
+                { name: 'OpenAI 完整测试', func: testOpenAIFull },
+                { name: '环境变量', func: testEnvironmentVars },
+                { name: '网络诊断', func: testNetworkDiagnostics }
+            ];
+            
+            for (const test of tests) {
+                showResult('autoTestResult', `正在执行: ${test.name}...`, 'info');
+                await test.func();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 间隔1秒
+            }
+            
+            showResult('autoTestResult', '✅ 所有测试完成！请查看各个测试卡片的详细结果。', 'success');
+            
+            btn.disabled = false;
+            btn.textContent = '重新运行所有测试';
+        }
+        
+        // 页面加载时自动检查基础状态
+        window.onload = function() {
+            setTimeout(() => {
+                testBasicConnectivity();
+                testHelloAPI();
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

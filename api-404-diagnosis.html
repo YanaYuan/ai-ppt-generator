@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Vercel API 404 专项诊断</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 12px;
+        }
+        
+        .test-section {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+        }
+        
+        .btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            border-left: 4px solid #10b981;
+        }
+        
+        .error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .warning {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .status-testing {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Vercel API 404 专项诊断工具</h1>
+            <p>专门针对 <code>/api/openai</code> 和相关端点的 404 问题进行诊断</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 核心API端点测试</h2>
+            <p>测试主要的API端点是否可访问：</p>
+            <button class="btn" onclick="testAllAPIs()">🚀 测试所有API端点</button>
+            <button class="btn" onclick="testSpecificAPI('/api/hello')">测试 /api/hello</button>
+            <button class="btn" onclick="testSpecificAPI('/api/diagnostic')">测试 /api/diagnostic</button>
+            <button class="btn" onclick="testSpecificAPI('/api/openai')">测试 /api/openai</button>
+            <button class="btn" onclick="testSpecificAPI('/api/vision')">测试 /api/vision</button>
+            <div id="api-test-results" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 网络连接诊断</h2>
+            <p>检查基础网络连接和响应：</p>
+            <button class="btn" onclick="testNetworkConnectivity()">🔍 网络连接测试</button>
+            <div id="network-results" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 环境信息收集</h2>
+            <p>收集当前环境的详细信息：</p>
+            <button class="btn" onclick="collectEnvironmentInfo()">📊 收集环境信息</button>
+            <div id="env-results" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔄 实时状态监控</h2>
+            <p>持续监控API状态：</p>
+            <button class="btn" onclick="startMonitoring()" id="monitor-btn">▶️ 开始监控</button>
+            <button class="btn" onclick="stopMonitoring()" id="stop-btn" disabled>⏹️ 停止监控</button>
+            <div id="monitoring-results" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let monitoringInterval = null;
+
+        // 格式化显示结果
+        function displayResult(elementId, result, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = typeof result === 'object' ? JSON.stringify(result, null, 2) : result;
+        }
+
+        // 测试单个API端点
+        async function testSpecificAPI(endpoint) {
+            const resultElement = document.getElementById('api-test-results');
+            
+            try {
+                displayResult('api-test-results', `正在测试 ${endpoint}...`, 'warning');
+                
+                const startTime = Date.now();
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                let responseText;
+                try {
+                    responseText = await response.text();
+                } catch (e) {
+                    responseText = '无法读取响应内容';
+                }
+                
+                const result = {
+                    endpoint: endpoint,
+                    status: response.status,
+                    statusText: response.statusText,
+                    responseTime: `${responseTime}ms`,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    responsePreview: responseText.substring(0, 500),
+                    success: response.ok
+                };
+                
+                displayResult('api-test-results', result, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                const errorResult = {
+                    endpoint: endpoint,
+                    error: error.message,
+                    errorType: error.name,
+                    timestamp: new Date().toISOString()
+                };
+                
+                displayResult('api-test-results', errorResult, 'error');
+            }
+        }
+
+        // 测试所有API端点
+        async function testAllAPIs() {
+            const endpoints = ['/api/hello', '/api/diagnostic', '/api/openai', '/api/vision', '/api/check-env'];
+            const results = {};
+            
+            displayResult('api-test-results', '正在测试所有API端点...', 'warning');
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const startTime = Date.now();
+                    const response = await fetch(endpoint, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const endTime = Date.now();
+                    
+                    results[endpoint] = {
+                        status: response.status,
+                        statusText: response.statusText,
+                        responseTime: `${endTime - startTime}ms`,
+                        success: response.ok,
+                        available: true
+                    };
+                    
+                    if (response.ok) {
+                        try {
+                            const data = await response.json();
+                            results[endpoint].data = data;
+                        } catch (e) {
+                            results[endpoint].data = '非JSON响应';
+                        }
+                    }
+                    
+                } catch (error) {
+                    results[endpoint] = {
+                        error: error.message,
+                        available: false,
+                        success: false
+                    };
+                }
+            }
+            
+            displayResult('api-test-results', results, Object.values(results).some(r => r.success) ? 'success' : 'error');
+        }
+
+        // 网络连接测试
+        async function testNetworkConnectivity() {
+            displayResult('network-results', '正在进行网络连接测试...', 'warning');
+            
+            const tests = {
+                currentOrigin: window.location.origin,
+                userAgent: navigator.userAgent,
+                onlineStatus: navigator.onLine,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 测试基本连接
+            try {
+                const response = await fetch('/', { method: 'HEAD' });
+                tests.originConnectivity = {
+                    status: response.status,
+                    success: response.ok
+                };
+            } catch (error) {
+                tests.originConnectivity = {
+                    error: error.message,
+                    success: false
+                };
+            }
+            
+            // 测试API基路径
+            try {
+                const response = await fetch('/api/', { method: 'GET' });
+                tests.apiPathConnectivity = {
+                    status: response.status,
+                    statusText: response.statusText
+                };
+            } catch (error) {
+                tests.apiPathConnectivity = {
+                    error: error.message
+                };
+            }
+            
+            displayResult('network-results', tests, 'success');
+        }
+
+        // 收集环境信息
+        async function collectEnvironmentInfo() {
+            displayResult('env-results', '正在收集环境信息...', 'warning');
+            
+            const envInfo = {
+                url: window.location.href,
+                origin: window.location.origin,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                pathname: window.location.pathname,
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 尝试获取诊断API信息
+            try {
+                const response = await fetch('/api/diagnostic');
+                if (response.ok) {
+                    const diagnosticData = await response.json();
+                    envInfo.serverDiagnostic = diagnosticData;
+                }
+            } catch (error) {
+                envInfo.serverDiagnostic = { error: error.message };
+            }
+            
+            displayResult('env-results', envInfo, 'success');
+        }
+
+        // 开始监控
+        function startMonitoring() {
+            if (monitoringInterval) return;
+            
+            document.getElementById('monitor-btn').disabled = true;
+            document.getElementById('stop-btn').disabled = false;
+            
+            let monitorCount = 0;
+            const results = [];
+            
+            monitoringInterval = setInterval(async () => {
+                monitorCount++;
+                const timestamp = new Date().toISOString();
+                
+                try {
+                    const response = await fetch('/api/hello');
+                    const result = {
+                        count: monitorCount,
+                        timestamp: timestamp,
+                        status: response.status,
+                        success: response.ok,
+                        responseTime: Date.now()
+                    };
+                    
+                    results.push(result);
+                    
+                    // 只保留最近10次结果
+                    if (results.length > 10) {
+                        results.shift();
+                    }
+                    
+                    displayResult('monitoring-results', results, 'success');
+                    
+                } catch (error) {
+                    const result = {
+                        count: monitorCount,
+                        timestamp: timestamp,
+                        error: error.message,
+                        success: false
+                    };
+                    
+                    results.push(result);
+                    displayResult('monitoring-results', results, 'error');
+                }
+            }, 3000); // 每3秒检查一次
+        }
+
+        // 停止监控
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            
+            document.getElementById('monitor-btn').disabled = false;
+            document.getElementById('stop-btn').disabled = true;
+        }
+
+        // 页面加载时自动进行初始测试
+        window.onload = function() {
+            console.log('🔧 Vercel API 404 专项诊断工具已加载');
+            testSpecificAPI('/api/hello');
+        };
+    </script>
+</body>
+</html>

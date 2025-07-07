@@ -1,0 +1,28 @@
+{
+  "name": "ai-ppt-generator",
+  "version": "5.0.0",
+  "description": "AI PPT组件生成器 - 智能生成专业PPT组件，支持图片文字识别",
+  "main": "index.html",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "echo 'Static website, open index.html in browser'",
+    "build": "echo 'Static website, no build required'",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "keywords": ["ai", "ppt", "generator", "presentation", "ocr", "vision", "azure-openai"],
+  "author": "AI PPT Generator Team",
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/ai-ppt-generator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-ppt-generator.git"
+  }
+}
