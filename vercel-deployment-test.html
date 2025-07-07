@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel 部署测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-item {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .success { border-color: #10b981; }
+        .error { border-color: #ef4444; }
+        .pending { border-color: #f59e0b; }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .log {
+            background: #111827;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Vercel 部署测试</h1>
+        <p>测试静态文件和API端点是否正常工作</p>
+        
+        <div class="test-item pending" id="static-test">
+            <h3>📄 静态文件测试</h3>
+            <p>测试主应用页面是否可访问</p>
+            <button onclick="testStaticFiles()">测试静态文件</button>
+            <div class="log" id="static-log"></div>
+        </div>
+        
+        <div class="test-item pending" id="api-test">
+            <h3>🔗 API端点测试</h3>
+            <p>测试各个API端点是否正常</p>
+            <button onclick="testAPIs()">测试API端点</button>
+            <div class="log" id="api-log"></div>
+        </div>
+        
+        <div class="test-item pending" id="main-app-test">
+            <h3>🎯 主应用测试</h3>
+            <p>测试主应用是否可以正常加载</p>
+            <button onclick="testMainApp()">打开主应用</button>
+            <div class="log" id="main-log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(elementId, message) {
+            const logElement = document.getElementById(elementId);
+            logElement.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function setStatus(elementId, status) {
+            const element = document.getElementById(elementId);
+            element.className = 'test-item ' + status;
+        }
+
+        async function testStaticFiles() {
+            log('static-log', '开始测试静态文件...');
+            setStatus('static-test', 'pending');
+            
+            try {
+                // 测试主应用文件
+                const response = await fetch('/ai-ppt-generator.html', {
+                    method: 'HEAD'
+                });
+                
+                if (response.ok) {
+                    log('static-log', '✅ ai-ppt-generator.html 可访问');
+                    setStatus('static-test', 'success');
+                } else {
+                    log('static-log', `❌ ai-ppt-generator.html 无法访问: ${response.status}`);
+                    setStatus('static-test', 'error');
+                }
+            } catch (error) {
+                log('static-log', `❌ 测试失败: ${error.message}`);
+                setStatus('static-test', 'error');
+            }
+        }
+
+        async function testAPIs() {
+            log('api-log', '开始测试API端点...');
+            setStatus('api-test', 'pending');
+            
+            const endpoints = [
+                '/api/hello',
+                '/api/test',
+                '/api/check-env',
+                '/api/diagnostic'
+            ];
+            
+            let allPassed = true;
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint);
+                    if (response.ok) {
+                        const data = await response.json();
+                        log('api-log', `✅ ${endpoint} 正常: ${JSON.stringify(data)}`);
+                    } else {
+                        log('api-log', `❌ ${endpoint} 失败: ${response.status}`);
+                        allPassed = false;
+                    }
+                } catch (error) {
+                    log('api-log', `❌ ${endpoint} 错误: ${error.message}`);
+                    allPassed = false;
+                }
+            }
+            
+            setStatus('api-test', allPassed ? 'success' : 'error');
+        }
+
+        function testMainApp() {
+            log('main-log', '正在打开主应用...');
+            window.open('/ai-ppt-generator.html', '_blank');
+            log('main-log', '✅ 已尝试打开主应用');
+        }
+
+        // 页面加载时自动运行测试
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testStaticFiles();
+                setTimeout(() => {
+                    testAPIs();
+                }, 1000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
