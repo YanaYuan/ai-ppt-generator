@@ -2528,14 +2528,17 @@
                     // 调用Azure OpenAI Vision API识别图片
                     const recognizedText = await this.recognizeImageText(imageBlob);
 
-                    // 将识别的文字写入输入框
+                    // 将识别的文字写入输入框（替换现有内容）
                     if (recognizedText) {
-                        const currentText = userInput.value.trim();
-                        const newText = currentText ? `${currentText}\n\n${recognizedText}` : recognizedText;
-                        userInput.value = newText;
+                        // 直接替换文本框内容，不保留原有内容
+                        userInput.value = recognizedText;
+                        
+                        // 聚焦到输入框并将光标移到末尾
+                        userInput.focus();
+                        userInput.setSelectionRange(recognizedText.length, recognizedText.length);
                         
                         // 显示成功状态
-                        status.textContent = `成功识别文字！已添加到输入框 (${recognizedText.length}字)`;
+                        status.textContent = `成功识别文字！已替换输入框内容 (${recognizedText.length}字)`;
                         status.className = 'helper-status success';
                     } else {
                         throw new Error('未能识别出文字内容');
