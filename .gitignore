@@ -34,4 +34,48 @@ Thumbs.db
 *.temp
 
 # 备份文件（保留当前使用的备份目录）
-# backup_*/
+backup_*/
+
+# 批处理脚本和Shell脚本
+*.bat
+*.sh
+
+# 测试和诊断文件
+*-test.html
+*-diagnosis.html
+test-*.html
+debug-*.html
+api-test-*.html
+api-diagnosis.html
+api-config-tester.html
+basic-test.html
+simple-test.html
+screenshot-test.html
+postmessage-test.html
+prompt-debugger*.html
+vercel-diagnostic.html
+production-status-check.html
+environment-diagnostic.html
+
+# 临时状态文件
+temp_*.txt
+temp_*.md
+
+# 多余的文档文件（保留核心文档）
+*_CHECKLIST.md
+*_TROUBLESHOOTING.md
+*_FIX_GUIDE.md
+*_SUMMARY.md
+*_STATUS.md
+*_REPORT.md
+FIX_*.md
+DEPLOY*.md
+UPLOAD*.md
+VERCEL_*.md
+QUICK_*.md
+FINAL_*.md
+API_*.md
+PRODUCTION_*.md
+SECURITY_*.md
+OCR_*.md
+GITHUB_*.md
